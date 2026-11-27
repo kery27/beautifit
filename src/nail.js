@@ -57,17 +57,18 @@ function light(src,G){const w=G.wid,l=G.l0,nx=-G.uy,ny=G.ux,kx=8/(1.3*w),ky=12/(
   sg.setTransform(kx*nx,ky*G.ux,kx*ny,ky*G.uy,-kx*(nx*G.bx+ny*G.by)+4,-ky*(G.ux*G.bx+G.uy*G.by)+0.1*l*ky);
   sg.imageSmoothingQuality='high';try{sg.drawImage(src,0,0)}catch(e){return null}
   let d;try{d=sg.getImageData(0,0,8,12).data}catch(e){return null}
-  const v=[];let m=0,n=0;for(let k=0;k<96;k++){const a=d[k*4+3];const y=a>200?0.299*d[k*4]+0.587*d[k*4+1]+0.114*d[k*4+2]:NaN;v.push(y);if(a>200){m+=y;n++}}
+  const v=[],cs=[0,0,0];let m=0,n=0;for(let k=0;k<96;k++){const a=d[k*4+3];const y=a>200?0.299*d[k*4]+0.587*d[k*4+1]+0.114*d[k*4+2]:NaN;v.push(y);if(a>200){m+=y;n++;cs[0]+=d[k*4];cs[1]+=d[k*4+1];cs[2]+=d[k*4+2]}}
   if(!n)return null;m/=n;const c=document.createElement('canvas');c.width=8;c.height=12;const cg=c.getContext('2d'),im=cg.createImageData(8,12);
   v.forEach((y,i)=>{const t=Number.isNaN(y)?1:Math.min(1.3,Math.max(0.72,y/m)),g=Math.round(128*t);im.data[i*4]=im.data[i*4+1]=im.data[i*4+2]=g;im.data[i*4+3]=255});
-  cg.putImageData(im,0,0);let lt=0,rt=0;for(let j=0;j<12;j++){lt+=(v[j*8]||m)+(v[j*8+1]||m);rt+=(v[j*8+6]||m)+(v[j*8+7]||m)}return{c,mean:m/255,side:lt>rt?-1:1}}
+  cg.putImageData(im,0,0);let lt=0,rt=0;for(let j=0;j<12;j++){lt+=(v[j*8]||m)+(v[j*8+1]||m);rt+=(v[j*8+6]||m)+(v[j*8+7]||m)}
+  const t=cs.map(x=>Math.pow(Math.max(1,x/n)/Math.max(1,m),0.35)),tm=Math.max(...t);return{c,mean:m/255,side:lt>rt?-1:1,tint:t.map(x=>Math.round(255*x/tm))}}
 // 손톱 하나 그리기. G: 화면 좌표의 자리, o: {design,color,shape,seed,img,light,bright}
 function draw(g,G,o){const w=G.wid,l=G.len,D=byId(o.design),pth=path(w,l,o.shape);
   g.save();g.setTransform(-G.uy*o.k,G.ux*o.k,G.ux*o.k,G.uy*o.k,G.bx,G.by);   // o.k: 화면 배율(로컬 단위 = 이미지 픽셀)
   g.save();g.clip(pth);D.paint(g,w,l,o.color,G.f,o.seed,G.l0,o.img);
   const L=o.light;
   if(L){g.globalCompositeOperation='overlay';g.globalAlpha=D.mine?0.5:0.75;g.imageSmoothingEnabled=true;g.drawImage(L.c,-0.65*w,-0.1*G.l0,1.3*w,1.2*G.l0);g.imageSmoothingEnabled=true}
-  if(o.bright&&o.bright<0.99){g.globalCompositeOperation='multiply';g.globalAlpha=1;const b=Math.round(255*o.bright);g.fillStyle=`rgb(${b},${b},${b})`;g.fillRect(-w,-l*0.2,2*w,l*1.4)}
+  if((o.bright&&o.bright<0.99)||(L&&L.tint)){g.globalCompositeOperation='multiply';g.globalAlpha=1;const b=o.bright||1,tn=L&&L.tint||[255,255,255];g.fillStyle=`rgb(${tn[0]*b|0},${tn[1]*b|0},${tn[2]*b|0})`;g.fillRect(-w,-l*0.2,2*w,l*1.4)}
   // 큐티클 쪽은 살짝 어둡게
   g.globalCompositeOperation='source-over';g.globalAlpha=1;const cu=g.createLinearGradient(0,0,0,Math.min(l,G.l0)*0.35);cu.addColorStop(0,'rgba(40,15,10,.22)');cu.addColorStop(1,'rgba(40,15,10,0)');g.fillStyle=cu;g.fillRect(-w,-l*0.2,2*w,l*1.4);
   // 둥근 면: 양옆을 조금 어둡게
