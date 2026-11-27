@@ -1,0 +1,20 @@
+name = "hair-mirror-ai"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+# 기기별 토큰 사용량을 저장하는 KV
+# 만들기: npx wrangler kv namespace create TOKENS  → 나온 id 를 아래에 붙여넣기
+[[kv_namespaces]]
+binding = "TOKENS"
+id = "여기에_KV_네임스페이스_ID"
+
+[vars]
+# 앱을 올린 GitHub Pages 주소 (예: https://아이디.github.io) — 다른 사이트에서 이 서버를 못 쓰게 막는다
+ALLOW_ORIGIN = "https://아이디.github.io"
+# 이미지 편집 모델 (빠르고 저렴한 쪽을 원하면 gemini-3.1-flash-lite-image)
+MODEL = "gemini-3.1-flash-image"
+TOKEN_LIMIT = "10"
+
+# 비밀값은 여기 쓰지 말고 명령으로 넣기:
+#   npx wrangler secret put GEMINI_API_KEY   (Google AI Studio 에서 발급)
+#   npx wrangler secret put ADMIN_KEY        (선택: 테스트용 토큰 초기화 /reset 에 쓰는 암호)
