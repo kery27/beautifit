@@ -150,6 +150,8 @@ input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:tr
 .hop{color:#fff;opacity:.85;font-size:14px;text-decoration:underline;min-height:44px;display:inline-flex;align-items:center}
 .chip.flipc[hidden]{display:none}
 #status{white-space:normal;max-width:calc(100% - 132px);text-align:center;line-height:1.35}
+/* 안내 문구는 손끝을 가리지 않게 편집판 바로 위에 */
+.toast{top:auto;bottom:calc(var(--sh,260px) + 14px);transform:translate(-50%,8px)}.toast.on{transform:translate(-50%,0)}
 </style>
 </head>
 <body>
@@ -249,13 +251,15 @@ const DESIGNS=[
   {id:'glitter',n:'글리터',paint:(g,w,l,c,f,s)=>{fill(g,w,l,mix(c,[0,0,0],0.15));const r=rnd(s+7),n=Math.round(w*l/9)+30;
     for(let i=0;i<n;i++){const x=(r()-0.5)*w,y=r()*l,z=0.6+r()*Math.max(1.2,w*0.035),b=r();g.fillStyle=b>0.55?'rgba(255,255,255,.95)':b>0.3?rgb(mix(c,[255,240,200],0.6),0.95):'rgba(255,215,140,.9)';g.fillRect(x,y,z,z)}}},
   {id:'magnet',n:'자석',paint:(g,w,l,c)=>{const d=mix(c,[0,0,0],0.55);fill(g,w,l,d);const gr=g.createLinearGradient(-w*0.6,l*0.15,w*0.6,l*0.85);
-    gr.addColorStop(0,rgb(d,0));gr.addColorStop(0.42,rgb(mix(c,[255,255,255],0.25),0.15));gr.addColorStop(0.5,rgb(mix(c,[255,255,255],0.55),0.95));gr.addColorStop(0.58,rgb(mix(c,[255,255,255],0.25),0.15));gr.addColorStop(1,rgb(d,0));g.fillStyle=gr;g.fillRect(-w,-l*0.2,2*w,l*1.4)}},
-  {id:'marble',n:'마블',paint:(g,w,l,c,f,s)=>{fill(g,w,l,[246,244,240]);const r=rnd(s+3);g.lineCap='round';
-    for(let i=0;i<4;i++){g.strokeStyle=rgb(i%2?mix(c,[255,255,255],0.35):mix(c,[0,0,0],0.1),0.55+r()*0.35);g.lineWidth=Math.max(0.6,w*(0.02+r()*0.05));g.beginPath();
-      let x=(r()-0.5)*w,y=-l*0.1;g.moveTo(x,y);for(let k=0;k<4;k++){const nx=(r()-0.5)*w*1.2,ny=y+l*(0.25+r()*0.2);g.quadraticCurveTo((x+nx)/2+(r()-0.5)*w*0.6,(y+ny)/2,nx,ny);x=nx;y=ny}g.stroke()}}},
+    gr.addColorStop(0,rgb(d,0));gr.addColorStop(0.3,rgb(mix(c,[255,255,255],0.15),0.2));gr.addColorStop(0.46,rgb(mix(c,[255,255,255],0.45),0.75));gr.addColorStop(0.5,rgb(mix(c,[255,255,255],0.7),0.95));gr.addColorStop(0.54,rgb(mix(c,[255,255,255],0.45),0.75));gr.addColorStop(0.7,rgb(mix(c,[255,255,255],0.15),0.2));gr.addColorStop(1,rgb(d,0));g.fillStyle=gr;g.fillRect(-w,-l*0.2,2*w,l*1.4)}},
+  {id:'marble',n:'마블',paint:(g,w,l,c,f,s)=>{fill(g,w,l,[246,244,240]);const r=rnd(s+3);g.lineCap='round';g.lineJoin='round';
+    const vein=(lw,a,col,blur)=>{g.save();g.filter=blur?`blur(${Math.max(0.5,w*0.03).toFixed(1)}px)`:'none';g.strokeStyle=rgb(col,a);g.lineWidth=lw;g.beginPath();
+      let x=(r()-0.5)*w,y=-l*0.1;g.moveTo(x,y);for(let k=0;k<4;k++){const nx=(r()-0.5)*w*1.2,ny=y+l*(0.25+r()*0.2);g.quadraticCurveTo((x+nx)/2+(r()-0.5)*w*0.6,(y+ny)/2,nx,ny);x=nx;y=ny}g.stroke();g.restore()};
+    for(let i=0;i<2;i++)vein(Math.max(1,w*0.16),0.28,mix(c,[255,255,255],0.3),true);
+    for(let i=0;i<3;i++)vein(Math.max(0.6,w*(0.025+r()*0.03)),0.7,mix(c,[0,0,0],0.1),false)}},
   {id:'chrome',n:'크롬',paint:(g,w,l,c)=>{const gr=g.createLinearGradient(-w/2,0,w/2,0),lt=mix(c,[255,255,255],0.75),dk=mix(c,[0,0,0],0.45);
     gr.addColorStop(0,rgb(dk));gr.addColorStop(0.28,rgb(lt));gr.addColorStop(0.45,rgb(mix(c,[255,255,255],0.2)));gr.addColorStop(0.7,rgb(dk));gr.addColorStop(0.9,rgb(lt));gr.addColorStop(1,rgb(mix(c,[0,0,0],0.3)));g.fillStyle=gr;g.fillRect(-w,-l*0.2,2*w,l*1.4)}},
-  {id:'heart',n:'하트 포인트',paint:(g,w,l,c,f,s,l0)=>{if(f===3||f===0){fill(g,w,l,[246,222,220]);heart(g,0,l0*0.55,w*0.22,c)}else fill(g,w,l,c)}},
+  {id:'heart',n:'하트 포인트',paint:(g,w,l,c,f,s,l0)=>{if(f===3||f===0){fill(g,w,l,[246,222,220]);heart(g,0,l0*0.52,w*0.34,c)}else fill(g,w,l,c)}},
   {id:'mine',n:'내 시안',mine:true,paint:(g,w,l,c,f,s,l0,img)=>{if(!img){fill(g,w,l,[230,225,222]);return}const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,k=Math.max(w/iw,l/ih);
     g.drawImage(img,-iw*k/2,l/2-ih*k/2,iw*k,ih*k)}}
 ];

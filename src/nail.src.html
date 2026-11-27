@@ -150,6 +150,8 @@ input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:tr
 .hop{color:#fff;opacity:.85;font-size:14px;text-decoration:underline;min-height:44px;display:inline-flex;align-items:center}
 .chip.flipc[hidden]{display:none}
 #status{white-space:normal;max-width:calc(100% - 132px);text-align:center;line-height:1.35}
+/* 안내 문구는 손끝을 가리지 않게 편집판 바로 위에 */
+.toast{top:auto;bottom:calc(var(--sh,260px) + 14px);transform:translate(-50%,8px)}.toast.on{transform:translate(-50%,0)}
 </style>
 </head>
 <body>
