@@ -22,13 +22,14 @@
 
 ## 변신: 체험 모드와 진짜 AI
 
-- `index.html` 의 `const AI_URL='';` 이 비어 있으면 **체험 모드**예요. 기기 안에서 경계·조명을 간단히 다듬고, 토큰 차감·10개 한도는 실제와 똑같이 동작해요. 토큰은 이 브라우저에 저장돼요.
-- 진짜 AI 합성은 `server/` 의 Cloudflare Worker를 올리고 `AI_URL` 에 그 주소를 넣으면 돼요. 서버가 Gemini 이미지 편집 모델을 부르고, 기기별 토큰도 서버가 직접 세요. 순서는 [server/README.md](server/README.md) 에 있어요.
+- `config.js` 의 `aiUrl` 이 비어 있으면 **체험 모드**예요. 기기 안에서 경계·조명을 간단히 다듬고, 토큰 차감·10개 한도는 실제와 똑같이 동작해요. 토큰은 이 브라우저에 저장돼요.
+- 진짜 AI 합성은 `server/` 의 Cloudflare Worker를 올리고 `config.js` 의 `aiUrl` 에 그 주소를 넣으면 돼요(빌드 필요 없음). 서버가 Gemini 이미지 편집 모델을 부르고, 기기별 토큰과 하루 상한도 서버가 직접 세요. 순서는 [server/README.md](server/README.md) 에 있어요.
 
 ## 폴더
 
 ```
 index.html        앱 (빌드 결과 — GitHub Pages가 이 파일을 보여줌)
+config.js         설정 — AI 변신 서버 주소(aiUrl)
 src/app.src.html  앱 원본 (화면·편집·변신·토큰·저장)
 src/wig.js        가발 엔진 (가발 사진 배치·색 바꾸기)
 build.py          src → index.html 빌드

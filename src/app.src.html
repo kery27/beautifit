@@ -193,6 +193,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:tr
   <div class="modal" id="modal" hidden><div class="mcard" id="mcard" role="dialog" aria-modal="true"></div></div>
   <div class="toast" id="toast" role="status"></div>
 </div>
+<script src="config.js"></script>
 <script src="mp/mp_assets.js"></script>
 <script src="mp/face_mesh.js"></script>
 <script>
@@ -201,8 +202,8 @@ input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:tr
 <script>
 {
 // ================= 설정 =================
-// 실제 AI 서버(Cloudflare Worker) 주소. 비워 두면 '체험 모드'로 동작해요 (기기 안에서 간단 보정, 토큰 차감은 실제와 같음)
-const AI_URL='';
+// 실제 AI 서버(Cloudflare Worker) 주소는 config.js 의 aiUrl 에 넣어요. 비어 있으면 '체험 모드' (기기 안에서 간단 보정, 토큰 차감은 실제와 같음)
+const AI_URL=String((window.HM_CONFIG&&window.HM_CONFIG.aiUrl)||'').trim().replace(/\/+$/,'');
 const TOKEN_LIMIT=10;
 
 const $=id=>document.getElementById(id);
@@ -490,10 +491,18 @@ $('morph').onclick=()=>{if(!Tok.ready)return;if(left()<=0){openTokens(true);retu
 async function doMorph(){closeModal();if(morphing||!anchor||left()<=0)return;morphing=true;const before=snapshot();
   if(AI_URL){busyOn('AI가 사진을 다시 그리는 중…','토큰 1개를 사용해요 · 10~30초쯤 걸려요');
     const R=exportRect(),big=renderExport(R),k=Math.min(1,1024/Math.max(big.width,big.height)),crop=mk(big.width*k,big.height*k);crop.getContext('2d').drawImage(big,0,0,crop.width,crop.height);
-    try{const r=await fetch(AI_URL+'/transform',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({device:devId(),image:crop.toDataURL('image/jpeg',0.9),aspect:R.ar})});
-      const j=await r.json().catch(()=>({}));if(typeof j.used==='number'){Tok.used=j.used;Tok.limit=j.limit||Tok.limit;tokUI()}
-      if(r.ok&&typeof j.image==='string'&&j.image.startsWith('data:image/')){const img=await loadImg(j.image);busyOff();showResult(img,R,before,before,false,R);toast(`토큰 1개 사용 · 남은 토큰 ${left()}/${Tok.limit}`)}
-      else{busyOff();if(j.error==='no_tokens')openTokens(true);else toast(j.refunded?'AI 합성에 실패해서 토큰을 돌려드렸어요':'AI 합성에 실패했어요')}}
+    try{const b64=crop.toDataURL('image/jpeg',0.9).split(',')[1];
+      const r=await fetch(`${AI_URL}/transform?device=${encodeURIComponent(devId())}&aspect=${encodeURIComponent(R.ar)}`,{method:'POST',headers:{'content-type':'text/plain'},body:b64});
+      const hu=r.headers.get('x-tokens-used');if(hu!=null){Tok.used=+hu||0;Tok.limit=+r.headers.get('x-tokens-limit')||Tok.limit;tokUI()}
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok&&typeof j.used==='number'){Tok.used=j.used;Tok.limit=j.limit||Tok.limit;tokUI()}
+      // 서버는 Gemini 응답을 그대로 넘겨준다 → 여기서 사진 부분을 꺼낸다
+      const parts=(j&&j.candidates&&j.candidates[0]&&j.candidates[0].content&&j.candidates[0].content.parts)||[],
+        pics=parts.filter(p=>p&&!p.thought&&(p.inlineData||p.inline_data)),part=pics[pics.length-1],d=part&&(part.inlineData||part.inline_data);   // 중간 시안(thought)은 빼고 마지막 사진
+      if(r.ok&&d&&typeof d.data==='string'){const mt=/^image\/(png|jpeg|webp)$/.test(d.mimeType||d.mime_type||'')?(d.mimeType||d.mime_type):'image/png';
+        const img=await loadImg(`data:${mt};base64,${d.data}`);busyOff();showResult(img,R,before,before,false,R);toast(`토큰 1개 사용 · 남은 토큰 ${left()}/${Tok.limit}`)}
+      else{busyOff();if(j.error==='no_tokens')openTokens(true);
+        else toast(j.error==='daily_limit'?'오늘 AI 변신이 모두 마감됐어요. 내일 다시 해 주세요 (토큰은 그대로예요)':j.error==='busy'?'잠시 후 다시 해 주세요 (토큰은 그대로예요)':j.refunded?'AI 합성에 실패해서 토큰을 돌려드렸어요':'AI 합성에 실패했어요')}}
     catch(e){busyOff();toast('AI 서버에 연결하지 못했어요');tokInit()}}
   else{const R=exportRect(),a=await spend('체험');busyOn('자연스럽게 다시 합성하는 중…',`토큰 1개 사용 · 남은 토큰 ${left()}개`);
     const t0=performance.now();let out=null;try{out=harmonize()}catch(e){}
