@@ -8,12 +8,12 @@ const COLORS=[['자연 흑발','#0b0908','#1f1916','#8a8790'],['다크 브라운
   ['핑크 브라운','#361c1e','#8c5458','#dda7a9'],['애쉬 그레이','#3a383a','#8a888b','#e0dfe4']].map(([n,d,b,l])=>({n,sw:b,d:hx(d),b:hx(b),l:hx(l)}));
 // 실사 가발 — 사진에서 오려낸 가발을 '이마 꼭대기 점(cx,cy)'과 '얼굴 폭(w)'에 맞춰 붙인다 (단위: 이미지 픽셀)
 const PH={
-  layered:{name:'내추럴 레이어드',f:'wigs/layered.webp',cx:278.0,cy:157.5,w:256.2},
-  beachbob:{name:'비치 웨이브 단발',f:'wigs/beachbob.webp',cx:266.0,cy:152.8,w:247.8},
-  sleek:{name:'슬릭 롱 스트레이트',f:'wigs/sleek.webp',cx:271.0,cy:137.8,w:224.7},
-  curtain:{name:'커튼뱅 롱헤어',f:'wigs/curtain.webp',cx:284.0,cy:147.7,w:235.2},
-  curlybob:{name:'컬리 단발',f:'wigs/curlybob.webp',cx:293.0,cy:149.6,w:245.7},
-  wavelong:{name:'볼륨 웨이브 롱헤어',f:'wigs/wavelong.webp',cx:430.5,cy:149.0,w:250.0}
+  beachbob:{name:'비치 웨이브 단발',f:'wigs/beachbob.webp',cx:266.0,cy:152.8,w:247.8,t:28},
+  layered:{name:'내추럴 레이어드',f:'wigs/layered.webp',cx:278.0,cy:157.5,w:256.2,t:27},
+  sleek:{name:'슬릭 롱 스트레이트',f:'wigs/sleek.webp',cx:271.0,cy:137.8,w:224.7,t:21},
+  curtain:{name:'커튼뱅 롱헤어',f:'wigs/curtain.webp',cx:284.0,cy:147.7,w:235.2,t:27},
+  curlybob:{name:'컬리 단발',f:'wigs/curlybob.webp',cx:293.0,cy:149.6,w:245.7,t:21},
+  wavelong:{name:'볼륨 웨이브 롱헤어',f:'wigs/wavelong.webp',cx:430.5,cy:149.0,w:250.0,t:23}
 };
 const phImg={},phTex=new Map();
 function photoLoad(id,cb){let im=phImg[id];
@@ -46,10 +46,12 @@ function localT(g,a,o){const{p,W,ang}=a,c=Math.cos(ang),s=Math.sin(ang),k=W*o.sc
 function skinPatch(g,a,o){if(!o.skin)return;g.save();localT(g,a,{sc:1,wx:1,oy:0});const gr=g.createLinearGradient(0,-0.27,0,0.2);
   gr.addColorStop(0,`rgba(${o.skin},1)`);gr.addColorStop(0.62,`rgba(${o.skin},1)`);gr.addColorStop(1,`rgba(${o.skin},0)`);
   g.filter=`blur(${Math.max(1,a.W/22).toFixed(1)}px)`;g.fillStyle=gr;g.fill(BROW);g.restore()}
+// 가발 정수리가 이마 꼭대기 점에서 얼굴 폭의 몇 배 위까지 덮는지 (t: 가발 그림에서 가르마 부근 가운데 띠가 다 덮이는 첫 줄)
+const crown=id=>{const P=PH[id];return P?(P.cy-(P.t||0))/P.w:0.56};
 function extent(id){const P=PH[id],im=phImg[id],w=im&&im.naturalWidth||P.cx*2,h=im&&im.naturalHeight||P.cy*4;
   return{top:-P.cy/P.w,bottom:(h-P.cy)/P.w,half:Math.max(P.cx,w-P.cx)/P.w}}
 // 썸네일·테스트용 표준 얼굴 윤곽 (랜드마크 10에서 시계 방향)
 const half=[[0,0],[0.17,0.01],[0.3,0.05],[0.41,0.13],[0.48,0.26],[0.505,0.42],[0.495,0.57],[0.47,0.72],[0.42,0.88],[0.33,1.03],[0.2,1.15],[0.08,1.21],[0,1.225]];
 const CANON=half.concat(half.slice(1,-1).reverse().map(([x,y])=>[-x,y]));
-return{COLORS,PH,list:Object.keys(PH),photoLoad,photoReady,photoTex,drawPhoto,wigOnly,skinPatch,extent,CANON};
+return{COLORS,PH,list:Object.keys(PH),photoLoad,photoReady,photoTex,drawPhoto,wigOnly,skinPatch,extent,crown,CANON};
 })();

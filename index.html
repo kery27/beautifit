@@ -207,12 +207,12 @@ const COLORS=[['자연 흑발','#0b0908','#1f1916','#8a8790'],['다크 브라운
   ['핑크 브라운','#361c1e','#8c5458','#dda7a9'],['애쉬 그레이','#3a383a','#8a888b','#e0dfe4']].map(([n,d,b,l])=>({n,sw:b,d:hx(d),b:hx(b),l:hx(l)}));
 // 실사 가발 — 사진에서 오려낸 가발을 '이마 꼭대기 점(cx,cy)'과 '얼굴 폭(w)'에 맞춰 붙인다 (단위: 이미지 픽셀)
 const PH={
-  layered:{name:'내추럴 레이어드',f:'wigs/layered.webp',cx:278.0,cy:157.5,w:256.2},
-  beachbob:{name:'비치 웨이브 단발',f:'wigs/beachbob.webp',cx:266.0,cy:152.8,w:247.8},
-  sleek:{name:'슬릭 롱 스트레이트',f:'wigs/sleek.webp',cx:271.0,cy:137.8,w:224.7},
-  curtain:{name:'커튼뱅 롱헤어',f:'wigs/curtain.webp',cx:284.0,cy:147.7,w:235.2},
-  curlybob:{name:'컬리 단발',f:'wigs/curlybob.webp',cx:293.0,cy:149.6,w:245.7},
-  wavelong:{name:'볼륨 웨이브 롱헤어',f:'wigs/wavelong.webp',cx:430.5,cy:149.0,w:250.0}
+  beachbob:{name:'비치 웨이브 단발',f:'wigs/beachbob.webp',cx:266.0,cy:152.8,w:247.8,t:28},
+  layered:{name:'내추럴 레이어드',f:'wigs/layered.webp',cx:278.0,cy:157.5,w:256.2,t:27},
+  sleek:{name:'슬릭 롱 스트레이트',f:'wigs/sleek.webp',cx:271.0,cy:137.8,w:224.7,t:21},
+  curtain:{name:'커튼뱅 롱헤어',f:'wigs/curtain.webp',cx:284.0,cy:147.7,w:235.2,t:27},
+  curlybob:{name:'컬리 단발',f:'wigs/curlybob.webp',cx:293.0,cy:149.6,w:245.7,t:21},
+  wavelong:{name:'볼륨 웨이브 롱헤어',f:'wigs/wavelong.webp',cx:430.5,cy:149.0,w:250.0,t:23}
 };
 const phImg={},phTex=new Map();
 function photoLoad(id,cb){let im=phImg[id];
@@ -245,12 +245,14 @@ function localT(g,a,o){const{p,W,ang}=a,c=Math.cos(ang),s=Math.sin(ang),k=W*o.sc
 function skinPatch(g,a,o){if(!o.skin)return;g.save();localT(g,a,{sc:1,wx:1,oy:0});const gr=g.createLinearGradient(0,-0.27,0,0.2);
   gr.addColorStop(0,`rgba(${o.skin},1)`);gr.addColorStop(0.62,`rgba(${o.skin},1)`);gr.addColorStop(1,`rgba(${o.skin},0)`);
   g.filter=`blur(${Math.max(1,a.W/22).toFixed(1)}px)`;g.fillStyle=gr;g.fill(BROW);g.restore()}
+// 가발 정수리가 이마 꼭대기 점에서 얼굴 폭의 몇 배 위까지 덮는지 (t: 가발 그림에서 가르마 부근 가운데 띠가 다 덮이는 첫 줄)
+const crown=id=>{const P=PH[id];return P?(P.cy-(P.t||0))/P.w:0.56};
 function extent(id){const P=PH[id],im=phImg[id],w=im&&im.naturalWidth||P.cx*2,h=im&&im.naturalHeight||P.cy*4;
   return{top:-P.cy/P.w,bottom:(h-P.cy)/P.w,half:Math.max(P.cx,w-P.cx)/P.w}}
 // 썸네일·테스트용 표준 얼굴 윤곽 (랜드마크 10에서 시계 방향)
 const half=[[0,0],[0.17,0.01],[0.3,0.05],[0.41,0.13],[0.48,0.26],[0.505,0.42],[0.495,0.57],[0.47,0.72],[0.42,0.88],[0.33,1.03],[0.2,1.15],[0.08,1.21],[0,1.225]];
 const CANON=half.concat(half.slice(1,-1).reverse().map(([x,y])=>[-x,y]));
-return{COLORS,PH,list:Object.keys(PH),photoLoad,photoReady,photoTex,drawPhoto,wigOnly,skinPatch,extent,CANON};
+return{COLORS,PH,list:Object.keys(PH),photoLoad,photoReady,photoTex,drawPhoto,wigOnly,skinPatch,extent,crown,CANON};
 })();
 
 </script>
@@ -264,7 +266,8 @@ const TOKEN_LIMIT=10;
 const $=id=>document.getElementById(id);
 const cv=$('cv'),ctx=cv.getContext('2d'),status=$('status');
 const OVAL=[10,338,297,332,284,251,389,356,454,323,361,288,397,365,379,378,400,377,152,148,176,149,150,136,172,58,132,93,234,127,162,21,54,103,67,109];
-const st={style:'layered',ci:-1,sc:1,wx:1,ox:0,oy:0,split:0,hold:false};
+const st={style:'beachbob',ci:-1,sc:1,wx:1,ox:0,oy:0,split:0,hold:false,autoSc:true};
+let autoPending=false,fitInfo=null;   // 시작할 때 얼굴에 맞춰 크기를 한 번 자동으로 맞춘다
 let src=null,anchor=null,mode='none',video=null,busy=false,fm=null,ready=false,bright=1,skin=null,frame=0,detecting=false;
 let iw=0,ih=0,view={z:1,tx:0,ty:0,auto:true},camFit=false,srcF=null,result=null,morphing=false,pmove=false;
 const mk=(w,h)=>{const c=document.createElement('canvas');c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
@@ -307,7 +310,7 @@ function fitView(){if(!src||!iw)return;const cw=cv.width,{y0,y1}=visible(),vh=y1
 // '사진만 움직이기': 헤어의 화면 위치·크기를 기억해 두고, 사진(=얼굴)이 움직인 만큼 헤어를 얼굴 기준으로 거꾸로 옮겨 제자리에 둔다
 function wigScreen(){const A=toScreen(anchor),c=Math.cos(A.ang),s=Math.sin(A.ang);return{x:A.p.x+A.W*(st.ox*c-st.oy*s),y:A.p.y+A.W*(st.ox*s+st.oy*c),k:A.W*st.sc}}
 function keepWig(w){const A=toScreen(anchor),c=Math.cos(A.ang),s=Math.sin(A.ang),dx=w.x-A.p.x,dy=w.y-A.p.y;
-  st.ox=(dx*c+dy*s)/A.W;st.oy=(-dx*s+dy*c)/A.W;st.sc=w.k/A.W;syncPos()}
+  st.ox=(dx*c+dy*s)/A.W;st.oy=(-dx*s+dy*c)/A.W;st.sc=w.k/A.W;st.autoSc=false;syncPos()}
 const lockWig=()=>pmove&&anchor?wigScreen():null;
 function zoomAt(c,z){if(!src||result)return;const k=zc(),w=lockWig();z=Math.min(k*10,Math.max(k*0.45,z));const ix=(c.x-view.tx)/view.z,iy=(c.y-view.ty)/view.z;
   view={z,tx:c.x-ix*z,ty:c.y-iy*z,auto:false};if(w)keepWig(w);render()}
@@ -340,6 +343,31 @@ function sample(x0,y0,x1,y1){const{p,W,ang}=anchor,c=Math.cos(ang),s=Math.sin(an
   if(bw<2||bh<2)return null;
   try{sg.clearRect(0,0,8,8);sg.drawImage(src,bx,by,bw,bh,0,0,8,8);const d=sg.getImageData(0,0,8,8).data;let r=0,g=0,b=0;
     for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2]}const n=d.length/4;return[r/n,g/n,b/n]}catch(e){return null}}
+// ===== 시작할 때 자동 크기 =====
+// 1) 얼굴 크기: 고개가 조금 돌아가도 줄지 않게 3D 폭을 쓰고, 긴 얼굴은 길이도 반영
+function geoK(l){const Q=i=>[l[i].x*iw,l[i].y*ih,(l[i].z||0)*iw],d=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1],a[2]-b[2]),
+    W2=Math.hypot((l[454].x-l[234].x)*iw,(l[454].y-l[234].y)*ih),W3=d(Q(234),Q(454)),H3=d(Q(10),Q(152));
+  return W2>0?Math.min(1.2,Math.max(1,Math.max(W3,(W3+H3/1.22)/2)/W2)):1}
+// 2) 원래 머리 꼭대기: 머리 위 빈 벽에서 아래로 내려오며 처음 벽 색과 달라지는 높이 (단위: 얼굴 폭). 배경이 복잡하거나 머리가 사진 위로 잘리면 건너뜀
+function hairTop(){if(!anchor||!src)return null;
+  const num=t=>t.split(',').map(Number),D=(x,y)=>Math.hypot(x[0]-y[0],x[1]-y[1],x[2]-y[2]),a=num(topL),b=num(topR);
+  if(D(a,b)>60)return null;
+  const wall=a.map((v,i)=>(v+b[i])/2);
+  const bgAt=h=>{const c=sample(-0.12,-h-0.02,0.12,-h+0.02);if(!c)return null;if(D(c,wall)<40)return true;
+    const sd=[sample(-1.15,-h-0.02,-0.95,-h+0.02),sample(0.95,-h-0.02,1.15,-h+0.02)].filter(v=>v&&D(v,wall)<70);
+    return sd.length>0&&sd.every(v=>D(c,v)<24)};
+  let seen=false;
+  for(let h=1.4;h>0.1;h-=0.025){const g=bgAt(h);if(g===null)continue;
+    if(g){seen=true;continue}
+    if(!seen)return null;
+    if(bgAt(h-0.025)===false)return h}
+  return null}
+// 가발 크기 = 얼굴 크기에 맞춘 값. 원래 머리가 가발 정수리보다 높으면 먼저 키우고(최대 115%), 그래도 모자라면 살짝 올림(최대 얼굴 폭의 8%)
+function autoPos(){if(!fitInfo)return{sc:1,oy:0};const cr=WIG.crown(st.style);let sc=fitInfo.k,oy=0;
+  if(fitInfo.top!=null&&cr>0){const need=fitInfo.top+0.02;sc=Math.max(sc,Math.min(1.15,need/cr));oy=-Math.min(0.08,Math.max(0,need-cr*sc))}
+  return{sc:Math.round(Math.min(1.25,Math.max(0.9,sc))*100)/100,oy:Math.round(oy*100)/100}}
+function applyAuto(all){const a=autoPos();st.sc=a.sc;st.autoSc=true;if(all){st.wx=1;st.ox=0;st.oy=a.oy}syncPos()}
+function autoFit(l){fitInfo={k:geoK(l),top:hairTop()};applyAuto(true)}
 function measure(){if(!anchor||!src)return;const f=sample(-0.12,0.1,0.12,0.22),ck=sample(-0.32,0.48,0.32,0.78);
   if(f)skin=f.map(v=>Math.round(v)).join(',');
   const ref=ck||f;if(ref){const L=(0.299*ref[0]+0.587*ref[1]+0.114*ref[2])/255;bright=Math.min(1.15,Math.max(0.55,Math.pow(L/0.62,0.85)))}}
@@ -349,7 +377,7 @@ try{
   fm=new FaceMesh({locateFile:f=>'mp/'+f});
   fm.setOptions({maxNumFaces:1,refineLandmarks:false,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
   fm.onResults(r=>{const l=r.multiFaceLandmarks&&r.multiFaceLandmarks[0];detecting=false;
-    if(l){anchor=smooth(toAnchor(l));if(mode==='photo'||frame%30===0)measure();if(status.textContent==='얼굴 찾는 중…')say('');
+    if(l){anchor=smooth(toAnchor(l));if(mode==='photo'||frame%30===0)measure();if(autoPending){autoPending=false;autoFit(l)}if(status.textContent==='얼굴 찾는 중…')say('');
       if(view.auto&&(mode==='photo'||!camFit)){fitView();camFit=true}}
     else if(mode==='photo'){anchor=null;say('얼굴을 찾지 못했어요. 정면 사진으로 다시 해보세요')}
     render()});
@@ -361,7 +389,7 @@ function feather(s,w,h){const c=mk(w,h),g=c.getContext('2d'),f=Math.max(8,Math.m
   g.globalCompositeOperation='destination-in';let gr=g.createLinearGradient(0,0,w,0);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(f/w,'#000');gr.addColorStop(1-f/w,'#000');gr.addColorStop(1,'rgba(0,0,0,0)');
   g.fillStyle=gr;g.fillRect(0,0,w,h);gr=g.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#000');gr.addColorStop(1-f/h,'#000');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);return c}
 function showEditor(){$('empty').hidden=true;$('top').hidden=false;$('zoom').hidden=false;$('sheet').hidden=false}
-function useSource(s,w,h,m){exitResult(true);if(typeof setPmove==='function')setPmove(false);st.ox=0;src=s;iw=w;ih=h;mode=m;anchor=null;camFit=false;srcF=m==='photo'?feather(s,w,h):null;showEditor();makeBackdrop();fitView()}
+function useSource(s,w,h,m){exitResult(true);if(typeof setPmove==='function')setPmove(false);st.ox=0;autoPending=true;fitInfo=null;src=s;iw=w;ih=h;mode=m;anchor=null;camFit=false;srcF=m==='photo'?feather(s,w,h):null;showEditor();makeBackdrop();fitView()}
 function stopCam(){if(video&&video.srcObject)video.srcObject.getTracks().forEach(t=>t.stop());video=null}
 document.querySelectorAll('.pick').forEach(inp=>inp.addEventListener('change',e=>{
   const f=e.target.files[0];if(!f)return;stopCam();const img=new Image();
@@ -412,10 +440,10 @@ function thumb(c,id){const g=c.getContext('2d');c.width=168;c.height=196;const K
   WIG.photoLoad(id,()=>WIG.drawPhoto(g,{p:{x:cx,y:ty},W:K,ang:0},{style:id,ci:st.ci,sc:1,wx:1,oy:0,skin:'236,200,172'}))}
 let tq=0;function thumbs(){const my=++tq,cs=[...sEl.querySelectorAll('.card')];let i=0;
   const step=()=>{if(my!==tq||i>=cs.length)return;const b=cs[i++];thumb(b.querySelector('canvas'),b.dataset.id);setTimeout(step,0)};setTimeout(step,30)}
-const SHORT={layered:'레이어드',beachbob:'웨이브 단발',sleek:'롱 스트레이트',curtain:'커튼뱅 롱',curlybob:'컬리 단발',wavelong:'웨이브 롱'};
+const SHORT={beachbob:'웨이브 단발',layered:'레이어드',sleek:'롱 스트레이트',curtain:'커튼뱅 롱',curlybob:'컬리 단발',wavelong:'웨이브 롱'};
 WIG.list.forEach(id=>{const b=document.createElement('button');b.className='card';b.type='button';b.dataset.id=id;
   b.innerHTML='<canvas width="168" height="196"></canvas><span></span>';b.querySelector('span').textContent=SHORT[id]||WIG.PH[id].name;b.setAttribute('aria-label',WIG.PH[id].name);sEl.append(b);
-  b.onclick=()=>{st.style=id;sync();refit();prep()}});
+  b.onclick=()=>{st.style=id;if(st.autoSc&&fitInfo)applyAuto(false);sync();refit();prep()}});
 [-1,...WIG.COLORS.keys()].forEach(i=>{const c=WIG.COLORS[i],b=document.createElement('button');b.className='dot'+(i<0?' orig':'');b.type='button';b.dataset.i=i;
   if(c)b.style.background=c.sw;b.setAttribute('aria-label',c?c.n:'원본 색');
   b.onclick=()=>{if(st.ci===i)return;st.ci=i;sync();prep();thumbs()};cEl.append(b)});
@@ -433,7 +461,7 @@ const PC={sc:{min:0.5,max:2,d:0.02,n:'크기'},wx:{min:0.8,max:1.25,d:0.02,n:'�
 const fmt={sc:v=>Math.round(v*100)+'%',wx:v=>Math.round(v*100)+'%',oy:v=>(v>0?'+':'')+Math.round(v*100),split:v=>v>0?Math.round(v*100)+'%':'끔'};
 let pk='sc';
 function syncPos(){if(!PC[pk])return;const i=$('pr');i.min=PC[pk].min;i.max=PC[pk].max;i.value=st[pk];i.setAttribute('aria-label',PC[pk].n);$('prO').textContent=fmt[pk](st[pk])}
-function setVal(k,v){const c=PC[k];v=Math.min(c.max,Math.max(c.min,Math.round(v*100)/100));st[k]=v;if(k===pk)syncPos();render()}
+function setVal(k,v){const c=PC[k];v=Math.min(c.max,Math.max(c.min,Math.round(v*100)/100));st[k]=v;if(k==='sc')st.autoSc=false;if(k===pk)syncPos();render()}
 function pickPos(k){if(k==='pm'){if(!anchor){toast('먼저 얼굴이 나온 사진을 올려주세요');return}setPmove(true);return}
   if(pmove)setPmove(false);pk=k;segUI();syncPos()}
 function segUI(){const cur=pmove?'pm':pk;document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===cur));
@@ -442,7 +470,7 @@ document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>pickPos(b.data
 $('pr').addEventListener('input',()=>setVal(pk,+$('pr').value));
 $('pminus').onclick=()=>setVal(pk,st[pk]-PC[pk].d);$('pplus').onclick=()=>setVal(pk,st[pk]+PC[pk].d);
 $('split').addEventListener('input',()=>{st.split=+$('split').value;$('splitO').textContent=fmt.split(st.split);render()});
-$('posReset').onclick=()=>{st.ox=0;st.sc=1;st.wx=1;st.oy=0;syncPos();render()};
+$('posReset').onclick=()=>{if(fitInfo)applyAuto(true);else{st.ox=0;st.sc=1;st.wx=1;st.oy=0;st.autoSc=true;syncPos()}render()};
 function setPmove(on){pmove=on;$('pbar').hidden=!on;cv.classList.toggle('pm',on);$('app').classList.toggle('pm',on);segUI()}
 $('pdone').onclick=()=>setPmove(false);
 function holdBtn(el){const on=e=>{e.preventDefault();st.hold=true;el.classList.add('on');render()},off=()=>{if(!st.hold)return;st.hold=false;el.classList.remove('on');render()};
