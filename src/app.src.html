@@ -50,51 +50,64 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .tiny{font-size:13px}
 /* 아래 편집판 */
 .sheet{position:absolute;left:0;right:0;bottom:0;z-index:3;background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:6px 12px max(12px,env(safe-area-inset-bottom));display:grid;gap:10px}
+  border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:8px 12px max(10px,env(safe-area-inset-bottom));display:grid;gap:8px;
+  height:calc(100% / 3);grid-template-rows:auto minmax(0,1fr) auto}
+.sheet.folded{height:auto;grid-template-rows:auto auto}
+.rsheet{height:auto;max-height:calc(100% / 3);grid-template-rows:none}
 .sheet[hidden]{display:none}
-.handle{justify-self:center;width:56px;height:22px;border:0;background:none;padding:0;display:grid;place-items:center}
-.handle::before{content:"";width:40px;height:5px;border-radius:9px;background:rgba(255,255,255,.4)}
 .tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;background:rgba(255,255,255,.08);border-radius:14px;padding:4px}
-.tabs button{min-height:44px;border:0;border-radius:11px;background:transparent;font-size:15px;font-weight:500;color:var(--sub)}
+.tabs button{min-height:40px;border:0;border-radius:11px;background:transparent;font-size:15px;font-weight:500;color:var(--sub)}
 .tabs button[aria-selected=true]{background:#fff;color:#3b1426;font-weight:700}
+.pane{min-height:0;overflow:hidden}
 .pane[hidden]{display:none}
-.scroll{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 6px;scrollbar-width:none}
+.scroll{display:flex;gap:8px;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:0 2px;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
-.card{flex:0 0 96px;scroll-snap-align:start;display:grid;gap:5px;justify-items:center;border:2px solid transparent;border-radius:16px;background:rgba(255,255,255,.07);padding:6px 4px 8px;font-size:13px;line-height:1.25;text-align:center}
-.card canvas{width:84px;height:98px;border-radius:12px;background:#eadfda}
+.card{flex:0 0 auto;height:100%;min-width:76px;scroll-snap-align:start;display:grid;grid-template-rows:minmax(0,1fr) auto;gap:3px;justify-items:center;border:2px solid transparent;border-radius:14px;background:rgba(255,255,255,.07);padding:4px 4px 5px;font-size:13px;line-height:1.2;text-align:center;white-space:nowrap}
+.card canvas{height:100%;width:auto;aspect-ratio:6/7;border-radius:10px;background:#eadfda}
 .card[aria-pressed=true]{border-color:var(--mint2);background:rgba(43,191,165,.16)}
 .colors{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 4px;scrollbar-width:none}
 .colors::-webkit-scrollbar{display:none}
-.dot{flex:0 0 50px;height:50px;border-radius:50%;border:3px solid rgba(0,0,0,.35);box-shadow:0 0 0 2px rgba(255,255,255,.25)}
+.dot{flex:0 0 48px;height:48px;border-radius:50%;border:3px solid rgba(0,0,0,.35);box-shadow:0 0 0 2px rgba(255,255,255,.25)}
 .dot[aria-pressed=true]{box-shadow:0 0 0 3px var(--mint2),0 0 0 6px rgba(43,191,165,.3)}
 .dot.orig{background:conic-gradient(#3a2418,#b0754a,#e3c38f,#1f1916,#8c5458,#3a2418)}
-.cname{font-size:14px;color:var(--sub);margin:4px 2px 0}
+.cname{font-size:14px;color:var(--sub);margin:6px 2px 0}
 .cname b{color:#fff}
 .rows{display:grid;gap:8px}
-.r{display:grid;grid-template-columns:2.6em 44px minmax(0,1fr) 44px 3.1em;align-items:center;gap:8px;font-size:15px}
+.r{display:grid;grid-template-columns:44px minmax(0,1fr) 44px 3.2em;align-items:center;gap:8px;font-size:15px}
+.posbar{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.seg{display:grid;grid-template-columns:1fr 1fr 1fr 1.6fr;gap:4px;background:rgba(255,255,255,.08);border-radius:12px;padding:3px}
+.seg button{min-height:38px;border:0;border-radius:9px;background:transparent;color:var(--sub);font-size:14px;font-weight:500;white-space:nowrap;padding:0 4px}
+.seg button[aria-pressed=true]{background:#fff;color:#3b1426;font-weight:700}
+.seg button.pm[aria-pressed=true]{background:var(--mint);color:#fff}
+.mini{min-height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);font-size:14px;white-space:nowrap}
+.pmhint{margin:0;min-height:44px;display:flex;align-items:center;gap:8px;font-size:14px;color:#dff6f1}
+.pmhint[hidden]{display:none}.r[hidden]{display:none}
 .r output{text-align:right;color:var(--sub);font-variant-numeric:tabular-nums;font-size:14px}
 .step{height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);font-size:22px;line-height:1}
 input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:transparent}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .soft{min-height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);font-size:15px}
-.holdbig{min-height:56px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.12);font-size:16px;font-weight:700;width:100%;user-select:none;-webkit-user-select:none}
+.holdbig{min-height:44px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.12);font-size:16px;font-weight:700;width:100%;user-select:none;-webkit-user-select:none}
 .holdbig.on{background:#fff;color:#3b1426}
 .hint{font-size:13px;color:var(--sub);margin:0 2px}
-.morph{min-height:58px;border:0;border-radius:16px;background:var(--mint);display:grid;place-content:center;gap:0;line-height:1.2;box-shadow:0 10px 24px -12px rgba(31,158,137,.9)}
-.morph b{font-size:19px}
+.acts{display:grid;grid-template-columns:minmax(0,1fr) 84px;gap:8px}
+.morph{min-height:50px;border:0;border-radius:14px;background:var(--mint);display:grid;place-content:center;gap:0;line-height:1.2;box-shadow:0 10px 24px -12px rgba(31,158,137,.9)}
+.morph b{font-size:17px}
 .morph small{font-size:13px;opacity:.9}
 .morph[aria-disabled=true]{background:#4b3f45;box-shadow:none}
 .soft[aria-disabled=true]{opacity:.55}
-.rsheet p{margin:2px 4px;font-size:14px;color:var(--sub)}
-.save{min-height:46px;border-radius:14px;border:1.5px solid rgba(255,255,255,.55);background:transparent;font-size:16px;font-weight:700}
-.savebig{min-height:54px;border-radius:14px;border:0;background:var(--mint);font-size:17px;font-weight:700}
+.rsheet p{margin:0 4px;font-size:13px;line-height:1.4;color:var(--sub)}
+.save{min-height:50px;border-radius:14px;border:1.5px solid rgba(255,255,255,.55);background:transparent;font-size:16px;font-weight:700}
+.savebig{min-height:48px;border-radius:12px;border:0;background:var(--mint);font-size:15px;font-weight:700}
 .soft[aria-pressed=true]{background:var(--mint);border-color:var(--mint);color:#fff;font-weight:700}
 #cv.pm{cursor:move}
 .pbar{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(var(--sh,260px) + 12px);z-index:3;display:flex;align-items:center;gap:10px;
   padding:5px 5px 5px 14px;border-radius:99px;background:rgba(31,158,137,.92);box-shadow:0 6px 18px -6px rgba(0,0,0,.6);font-size:14px;font-weight:500;white-space:nowrap}
 .pbar[hidden]{display:none}
 .pbar button{min-height:36px;padding:0 14px;border-radius:99px;border:0;background:#fff;color:#0f5c50;font-size:14px;font-weight:700}
-.rsheet .three{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rsheet .three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.rsheet .three .soft{min-height:48px;display:grid;place-content:center;line-height:1.2}
+.rsheet .three small{font-size:13px;opacity:.75}
 /* 바쁨 표시 */
 .busy{position:absolute;inset:0;z-index:5;display:grid;place-content:center;justify-items:center;gap:10px;text-align:center;background:rgba(10,5,8,.62);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .busy[hidden]{display:none}
@@ -152,33 +165,28 @@ input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:tr
   </div>
 
   <div class="sheet" id="sheet" hidden>
-    <button class="handle" id="handle" type="button" aria-label="편집판 접기/펴기"></button>
     <div class="tabs" role="tablist">
       <button role="tab" data-p="style" aria-selected="true">스타일</button><button role="tab" data-p="color" aria-selected="false">컬러</button><button role="tab" data-p="pos" aria-selected="false">위치</button><button role="tab" data-p="cmp" aria-selected="false">비교</button>
     </div>
     <div class="pane" id="p-style"><div class="scroll" id="styles"></div></div>
     <div class="pane" id="p-color" hidden><div class="colors" id="colors"></div><p class="cname">선택한 색 <b id="cname"></b></p></div>
     <div class="pane" id="p-pos" hidden><div class="rows">
-      <div class="r"><span>크기</span><button class="step" data-k="sc" data-d="-0.02" aria-label="크기 줄이기">−</button><input type="range" id="sc" min="0.5" max="2" step="0.01" value="1" aria-label="크기"><button class="step" data-k="sc" data-d="0.02" aria-label="크기 키우기">+</button><output id="scO">100%</output></div>
-      <div class="r"><span>폭</span><button class="step" data-k="wx" data-d="-0.02" aria-label="폭 줄이기">−</button><input type="range" id="wx" min="0.8" max="1.25" step="0.01" value="1" aria-label="폭"><button class="step" data-k="wx" data-d="0.02" aria-label="폭 넓히기">+</button><output id="wxO">100%</output></div>
-      <div class="r"><span>높이</span><button class="step" data-k="oy" data-d="-0.02" aria-label="위로">−</button><input type="range" id="oy" min="-1" max="1" step="0.01" value="0" aria-label="높이"><button class="step" data-k="oy" data-d="0.02" aria-label="아래로">+</button><output id="oyO">0</output></div>
-      <div class="two"><button class="soft" id="posReset" type="button">위치 처음대로</button><button class="soft" id="pmove" type="button" aria-pressed="false">사진만 움직이기</button></div>
-      <p class="hint">‘사진만 움직이기’를 켜면 헤어는 그대로 두고 뒤의 사진만 끌어서 옮기고, 두 손가락으로 크기를 바꿔요.</p>
+      <div class="posbar"><div class="seg" id="seg"><button type="button" data-k="sc" aria-pressed="true">크기</button><button type="button" data-k="wx" aria-pressed="false">폭</button><button type="button" data-k="oy" aria-pressed="false">높이</button><button type="button" class="pm" data-k="pm" aria-pressed="false">사진 이동</button></div>
+        <button class="mini" id="posReset" type="button">처음대로</button></div>
+      <div class="r" id="prow"><button class="step" id="pminus" type="button" aria-label="줄이기">−</button><input type="range" id="pr" min="0.5" max="2" step="0.01" value="1" aria-label="크기"><button class="step" id="pplus" type="button" aria-label="늘리기">+</button><output id="prO">100%</output></div>
+      <p class="pmhint" id="pmhint" hidden>헤어는 고정돼요. 사진을 끌어서 얼굴을 맞추고, 두 손가락으로 크기를 바꿔요.</p>
     </div></div>
     <div class="pane" id="p-cmp" hidden><div class="rows">
       <button class="holdbig" id="hold" type="button">누르고 있으면 원래 모습</button>
-      <div class="r"><span>비교</span><span></span><input type="range" id="split" min="0" max="1" step="0.01" value="0" aria-label="좌우 비교"><span></span><output id="splitO">끔</output></div>
-      <p class="hint">사진을 끌면 움직이고, 두 손가락이나 휠로 확대·축소돼요.</p>
+      <div class="r"><span class="cmpl">좌우</span><input type="range" id="split" min="0" max="1" step="0.01" value="0" aria-label="좌우 비교"><span></span><output id="splitO">끔</output></div>
     </div></div>
-    <button class="morph" id="morph" type="button"><b id="morphB">변신하기</b><small id="morphS">AI로 한 번 더 자연스럽게 · 토큰 1개</small></button>
-    <button class="save" id="save" type="button">저장</button>
+    <div class="acts"><button class="morph" id="morph" type="button"><b id="morphB">변신하기</b><small id="morphS">AI 합성 · 토큰 1개</small></button><button class="save" id="save" type="button">저장</button></div>
   </div>
 
   <div class="sheet rsheet" id="rsheet" hidden>
     <p id="rnote"></p>
     <button class="holdbig" id="rhold" type="button">누르고 있으면 변신 전</button>
-    <button class="savebig" id="rsave" type="button">이 사진 저장</button>
-    <div class="three"><button class="soft" id="rback" type="button">다시 편집</button><button class="soft" id="ragain" type="button">다시 변신 · 토큰 1개</button></div>
+    <div class="three"><button class="soft" id="rback" type="button">다시 편집</button><button class="savebig" id="rsave" type="button">저장</button><button class="soft" id="ragain" type="button"><b id="ragB">다시 변신</b><small id="ragS">토큰 1개</small></button></div>
   </div>
 
   <div class="busy" id="busy" hidden><div class="ring"></div><b id="busyB"></b><span id="busyS"></span></div>
@@ -348,8 +356,9 @@ function thumb(c,id){const g=c.getContext('2d');c.width=168;c.height=196;const K
   WIG.photoLoad(id,()=>WIG.drawPhoto(g,{p:{x:cx,y:ty},W:K,ang:0},{style:id,ci:st.ci,sc:1,wx:1,oy:0,skin:'236,200,172'}))}
 let tq=0;function thumbs(){const my=++tq,cs=[...sEl.querySelectorAll('.card')];let i=0;
   const step=()=>{if(my!==tq||i>=cs.length)return;const b=cs[i++];thumb(b.querySelector('canvas'),b.dataset.id);setTimeout(step,0)};setTimeout(step,30)}
+const SHORT={layered:'레이어드',beachbob:'웨이브 단발',sleek:'롱 스트레이트',curtain:'커튼뱅 롱',curlybob:'컬리 단발'};
 WIG.list.forEach(id=>{const b=document.createElement('button');b.className='card';b.type='button';b.dataset.id=id;
-  b.innerHTML='<canvas width="168" height="196"></canvas><span></span>';b.querySelector('span').textContent=WIG.PH[id].name;sEl.append(b);
+  b.innerHTML='<canvas width="168" height="196"></canvas><span></span>';b.querySelector('span').textContent=SHORT[id]||WIG.PH[id].name;b.setAttribute('aria-label',WIG.PH[id].name);sEl.append(b);
   b.onclick=()=>{st.style=id;sync();refit();prep()}});
 [-1,...WIG.COLORS.keys()].forEach(i=>{const c=WIG.COLORS[i],b=document.createElement('button');b.className='dot'+(i<0?' orig':'');b.type='button';b.dataset.i=i;
   if(c)b.style.background=c.sw;b.setAttribute('aria-label',c?c.n:'원본 색');
@@ -361,18 +370,24 @@ function sync(){sEl.querySelectorAll('.card').forEach(b=>b.setAttribute('aria-pr
 let pane='style',folded=false;
 function setPane(p){if(p===pane&&!folded){folded=true}else{pane=p;folded=false}
   document.querySelectorAll('.tabs button').forEach(t=>t.setAttribute('aria-selected',!folded&&t.dataset.p===pane));
-  ['style','color','pos','cmp'].forEach(k=>$('p-'+k).hidden=folded||k!==pane)}
+  ['style','color','pos','cmp'].forEach(k=>$('p-'+k).hidden=folded||k!==pane);$('sheet').classList.toggle('folded',folded)}
 document.querySelectorAll('.tabs button').forEach(t=>t.onclick=()=>setPane(t.dataset.p));
-$('handle').onclick=()=>setPane(pane);
+// 위치: [크기|폭|높이|사진 이동] 중 하나를 고르고 슬라이더 하나로 조절
+const PC={sc:{min:0.5,max:2,d:0.02,n:'크기'},wx:{min:0.8,max:1.25,d:0.02,n:'폭'},oy:{min:-1,max:1,d:0.02,n:'높이'}};
 const fmt={sc:v=>Math.round(v*100)+'%',wx:v=>Math.round(v*100)+'%',oy:v=>(v>0?'+':'')+Math.round(v*100),split:v=>v>0?Math.round(v*100)+'%':'끔'};
-function setVal(k,v){const i=$(k);v=Math.min(+i.max,Math.max(+i.min,Math.round(v*100)/100));st[k]=v;i.value=v;$(k+'O').textContent=fmt[k](v);render()}
-['sc','wx','oy','split'].forEach(k=>$(k).addEventListener('input',()=>setVal(k,+$(k).value)));
-document.querySelectorAll('.step').forEach(b=>b.onclick=()=>setVal(b.dataset.k,st[b.dataset.k]+(+b.dataset.d)));
-function syncPos(){for(const k of['sc','wx','oy']){$(k).value=st[k];$(k+'O').textContent=fmt[k](st[k])}}
-$('posReset').onclick=()=>{st.ox=0;setVal('sc',1);setVal('wx',1);setVal('oy',0)};
-function setPmove(on){pmove=on;const b=$('pmove');b.setAttribute('aria-pressed',on);b.textContent=on?'사진 움직이는 중 · 끄기':'사진만 움직이기';
-  $('pbar').hidden=!on;cv.classList.toggle('pm',on);$('app').classList.toggle('pm',on)}
-$('pmove').onclick=()=>{if(!pmove&&!anchor){toast('먼저 얼굴이 나온 사진을 올려주세요');return}setPmove(!pmove)};
+let pk='sc';
+function syncPos(){if(!PC[pk])return;const i=$('pr');i.min=PC[pk].min;i.max=PC[pk].max;i.value=st[pk];i.setAttribute('aria-label',PC[pk].n);$('prO').textContent=fmt[pk](st[pk])}
+function setVal(k,v){const c=PC[k];v=Math.min(c.max,Math.max(c.min,Math.round(v*100)/100));st[k]=v;if(k===pk)syncPos();render()}
+function pickPos(k){if(k==='pm'){if(!anchor){toast('먼저 얼굴이 나온 사진을 올려주세요');return}setPmove(true);return}
+  if(pmove)setPmove(false);pk=k;segUI();syncPos()}
+function segUI(){const cur=pmove?'pm':pk;document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===cur));
+  $('prow').hidden=pmove;$('pmhint').hidden=!pmove}
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>pickPos(b.dataset.k));
+$('pr').addEventListener('input',()=>setVal(pk,+$('pr').value));
+$('pminus').onclick=()=>setVal(pk,st[pk]-PC[pk].d);$('pplus').onclick=()=>setVal(pk,st[pk]+PC[pk].d);
+$('split').addEventListener('input',()=>{st.split=+$('split').value;$('splitO').textContent=fmt.split(st.split);render()});
+$('posReset').onclick=()=>{st.ox=0;st.sc=1;st.wx=1;st.oy=0;syncPos();render()};
+function setPmove(on){pmove=on;$('pbar').hidden=!on;cv.classList.toggle('pm',on);$('app').classList.toggle('pm',on);segUI()}
 $('pdone').onclick=()=>setPmove(false);
 function holdBtn(el){const on=e=>{e.preventDefault();st.hold=true;el.classList.add('on');render()},off=()=>{if(!st.hold)return;st.hold=false;el.classList.remove('on');render()};
   el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointerleave',off);el.addEventListener('pointercancel',off);
@@ -390,9 +405,9 @@ function saveLocal(){try{localStorage.setItem('hm_tokens',JSON.stringify(Tok.log
 async function saveTok(){saveLocal();if(Tok.ref){try{await Tok.ref.set({attempts:Tok.log,limit:Tok.limit,updated:Date.now()})}catch(e){Tok.ref=null;Tok.where='local'}}}
 function tokUI(){const n=left();$('tokTxt').textContent=Tok.ready?`${n}/${Tok.limit}`:'…';$('tokBtn').classList.toggle('zero',Tok.ready&&n<=0);
   const m=$('morph');m.setAttribute('aria-disabled',!Tok.ready||n<=0);
-  $('morphB').textContent=!Tok.ready?'토큰 확인 중…':n<=0?'토큰을 모두 썼어요':'변신하기';
-  $('morphS').textContent=!Tok.ready?'잠시만요':n<=0?`변신은 토큰 ${Tok.limit}개까지만 할 수 있어요`:`AI로 한 번 더 자연스럽게 · 토큰 1개 (남은 ${n}개)`;
-  $('ragain').setAttribute('aria-disabled',!Tok.ready||n<=0);$('ragain').textContent=n<=0?'토큰을 모두 썼어요':'다시 변신 · 토큰 1개'}
+  $('morphB').textContent=!Tok.ready?'토큰 확인 중…':n<=0?'변신 불가':'변신하기';
+  $('morphS').textContent=!Tok.ready?'잠시만요':n<=0?`토큰 ${Tok.limit}개를 다 썼어요`:`AI 합성 · 토큰 1개 (남은 ${n}개)`;
+  $('ragain').setAttribute('aria-disabled',!Tok.ready||n<=0);$('ragB').textContent=n<=0?'토큰 없음':'다시 변신';$('ragS').textContent=n<=0?'변신 불가':'토큰 1개'}
 async function tokInit(){
   if(AI_URL){Tok.where='server';try{const r=await fetch(AI_URL+'/tokens?device='+encodeURIComponent(devId())),j=await r.json();
       if(r.ok){Tok.used=j.used|0;Tok.limit=j.limit|0||TOKEN_LIMIT}else Tok.where='offline'}catch(e){Tok.where='offline'}
