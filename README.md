@@ -28,17 +28,20 @@
 ## 폴더
 
 ```
-index.html        앱 (빌드 결과 — GitHub Pages가 이 파일을 보여줌)
+index.html        헤어 미러 (빌드 결과 — GitHub Pages가 이 파일을 보여줌)
+nail.html         네일 미러 (빌드 결과)
 config.js         설정 — AI 변신 서버 주소(aiUrl)
 src/app.src.html  앱 원본 (화면·편집·변신·토큰·저장)
 src/wig.js        가발 엔진 (가발 사진 배치·색 바꾸기)
-build.py          src → index.html 빌드
-mp/               얼굴 인식 엔진 파일 (MediaPipe Face Mesh)
+src/nail.src.html 네일 미러 원본
+src/nail.js       네일 엔진 (손톱 자리 잡기·시안·모양·광택)
+build.py          src → index.html, nail.html 빌드
+mp/               얼굴·손 인식 엔진 파일 (MediaPipe Face Mesh, Hands)
 wigs/             실사 가발 이미지 (체크무늬 배경을 걷어내고 오려낸 것)
 server/           AI 변신 서버 (Cloudflare Worker)
 ```
 
-`src/` 를 고친 뒤 `python3 build.py` 를 실행하고 `index.html` 을 함께 커밋하면 돼요.
+`src/` 를 고친 뒤 `python3 build.py` 를 실행하고 `index.html`, `nail.html` 을 함께 커밋하면 돼요.
 
 ## 가발 추가하기
 
@@ -51,3 +54,14 @@ server/           AI 변신 서버 (Cloudflare Worker)
 - 숫자는 모두 이미지 픽셀 기준이에요.
 - `cx`, `cy` 는 얼굴 구멍 가운데 이마 꼭대기 자리예요.
 - `w` 는 그 가발에 맞는 얼굴 폭이에요. 보통 얼굴 구멍의 가장 넓은 폭의 약 1.05배예요.
+
+## 네일 미러 (nail.html)
+
+손등이 보이게 손가락을 편 사진(또는 실시간 카메라)에서 손 21개 점을 찾아, 손가락마다 손톱 자리를 잡고 시안을 입혀요.
+
+- 시안: 원컬러, 프렌치, 그라데이션, 글리터, 자석, 마블, 크롬, 하트 포인트, 내 시안(사진 올리기)
+- 컬러 12가지, 모양 5가지(라운드·오벌·스퀘어·아몬드·스틸레토), 길이 조절
+- 사진의 빛 흐름을 손톱마다 재서 입히고, 광택·옆면 그늘을 더해요
+- 변신(AI)은 헤어 미러와 같은 서버·같은 토큰을 써요. 내 시안을 고른 상태면 그 사진도 함께 보내 참고하게 해요
+
+손톱 자리 기준값(`src/nail.js` 의 `A0`, `A1`, `WR`)은 실제 손 사진으로 맞췄어요. 큐티클은 손가락 끝마디(DIP→TIP)의 42%, 자연 길이 끝은 108% 지점이에요.
