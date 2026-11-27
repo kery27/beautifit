@@ -12,7 +12,8 @@ const PH={
   beachbob:{name:'비치 웨이브 단발',f:'wigs/beachbob.webp',cx:266.0,cy:152.8,w:247.8},
   sleek:{name:'슬릭 롱 스트레이트',f:'wigs/sleek.webp',cx:271.0,cy:137.8,w:224.7},
   curtain:{name:'커튼뱅 롱헤어',f:'wigs/curtain.webp',cx:284.0,cy:147.7,w:235.2},
-  curlybob:{name:'컬리 단발',f:'wigs/curlybob.webp',cx:293.0,cy:149.6,w:245.7}
+  curlybob:{name:'컬리 단발',f:'wigs/curlybob.webp',cx:293.0,cy:149.6,w:245.7},
+  wavelong:{name:'볼륨 웨이브 롱헤어',f:'wigs/wavelong.webp',cx:430.5,cy:149.0,w:250.0}
 };
 const phImg={},phTex=new Map();
 function photoLoad(id,cb){let im=phImg[id];

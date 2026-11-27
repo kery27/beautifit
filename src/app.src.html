@@ -357,7 +357,7 @@ function thumb(c,id){const g=c.getContext('2d');c.width=168;c.height=196;const K
   WIG.photoLoad(id,()=>WIG.drawPhoto(g,{p:{x:cx,y:ty},W:K,ang:0},{style:id,ci:st.ci,sc:1,wx:1,oy:0,skin:'236,200,172'}))}
 let tq=0;function thumbs(){const my=++tq,cs=[...sEl.querySelectorAll('.card')];let i=0;
   const step=()=>{if(my!==tq||i>=cs.length)return;const b=cs[i++];thumb(b.querySelector('canvas'),b.dataset.id);setTimeout(step,0)};setTimeout(step,30)}
-const SHORT={layered:'레이어드',beachbob:'웨이브 단발',sleek:'롱 스트레이트',curtain:'커튼뱅 롱',curlybob:'컬리 단발'};
+const SHORT={layered:'레이어드',beachbob:'웨이브 단발',sleek:'롱 스트레이트',curtain:'커튼뱅 롱',curlybob:'컬리 단발',wavelong:'웨이브 롱'};
 WIG.list.forEach(id=>{const b=document.createElement('button');b.className='card';b.type='button';b.dataset.id=id;
   b.innerHTML='<canvas width="168" height="196"></canvas><span></span>';b.querySelector('span').textContent=SHORT[id]||WIG.PH[id].name;b.setAttribute('aria-label',WIG.PH[id].name);sEl.append(b);
   b.onclick=()=>{st.style=id;sync();refit();prep()}});
