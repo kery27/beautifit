@@ -7,6 +7,7 @@
 // 설정: wrangler.toml 의 [vars] / 비밀키는 `npx wrangler secret put GEMINI_API_KEY`
 // 무료 플랜(요청당 CPU 10ms)에서도 돌도록, 수 MB짜리 이미지 데이터를 JSON으로 풀었다 다시 묶지 않고 그대로 넘긴다.
 //   앱 → 서버: 본문 = JPEG의 base64 문자열 그대로, 기기 ID는 주소 뒤 ?device=
+//     네일 미러는 ?kind=nail, 참고 시안 사진이 있으면 본문 뒤에 ',' + 두 번째 JPEG base64
 //   서버 → 앱: Gemini 응답 JSON 그대로 (+ 헤더 x-tokens-used / x-tokens-limit)
 // 문제가 생기면 `npx wrangler tail` 로 Gemini가 돌려준 오류를 실시간으로 볼 수 있다.
 
@@ -18,6 +19,14 @@ Fix only what makes it look pasted: blend the hairline and hair edges into the s
 the forehead, cheeks and neck, match the hair's lighting and color temperature to the photo, remove any original hair that
 sticks out from under the wig, and clean up seams or blurry patches around the head.
 Do not add text, logos, borders, watermarks or extra people. Output only the edited photo.`;
+
+const NAIL_PROMPT = `The first image is a phone screenshot of a nail try-on preview: nail polish designs have been digitally pasted onto the fingernails of a real hand.
+Re-render it as one natural, photorealistic photograph of the same hand with this exact nail design actually applied as glossy gel polish on each fingernail.
+Keep identical: the hand, fingers, pose, skin tone, rings or accessories, background, framing, camera angle and lighting.
+Keep each nail's design, colors, length and shape as shown. Fit each design exactly to the real nail: follow the nail's outline, curvature and cuticle line,
+add realistic gloss, reflections and soft shadows, and remove any seams, misalignment or polish on the skin.
+Do not add text, logos, borders, watermarks or extra hands. Output only the edited photo.`;
+const NAIL_REF = `The second image is the customer's reference nail design. Recreate its colors, patterns and decorations on the nails of the hand in the first image, adapted to each nail's shape and length.`;
 
 const RATIOS = ['1:1', '2:3', '3:2', '3:4', '4:3', '4:5', '5:4', '9:16', '16:9'];
 const SIZES = ['512', '1K', '2K', '4K'];
@@ -62,8 +71,10 @@ export default {
     if (url.pathname === '/transform' && req.method === 'POST') {
       const device = url.searchParams.get('device');
       if (!okDevice(device)) return json({ error: 'bad_device' }, 400);
-      const b64 = (await req.text()).trim();
-      if (b64.length < 100 || b64.length > 8_000_000 || !/^[A-Za-z0-9+/]+={0,2}$/.test(b64)) return json({ error: 'bad_image' }, 400);
+      const kind = url.searchParams.get('kind') === 'nail' ? 'nail' : 'hair';
+      const raw = (await req.text()).trim();
+      const imgs = raw.split(',');
+      if (raw.length > 8_000_000 || imgs.length > (kind === 'nail' ? 2 : 1) || imgs.some((b) => b.length < 100 || !/^[A-Za-z0-9+/]+={0,2}$/.test(b))) return json({ error: 'bad_image' }, 400);
 
       const key = 'u:' + device;
       let used = await usedOf(key);
@@ -90,8 +101,10 @@ export default {
         const generationConfig = { responseModalities: ['IMAGE'] };
         if (withSize) generationConfig.imageConfig = { imageSize: size, ...(RATIOS.includes(aspect) ? { aspectRatio: aspect } : {}) };
         // 이미지 문자열은 JSON.stringify 하지 않고 이어 붙인다 (base64라 따옴표·역슬래시가 없어서 안전)
-        return '{"contents":[{"parts":[{"text":' + JSON.stringify(PROMPT) +
-          '},{"inline_data":{"mime_type":"image/jpeg","data":"' + b64 + '"}}]}],"generationConfig":' + JSON.stringify(generationConfig) + '}';
+        const text = kind === 'nail' ? NAIL_PROMPT + (imgs.length > 1 ? '\n' + NAIL_REF : '') : PROMPT;
+        return '{"contents":[{"parts":[{"text":' + JSON.stringify(text) + '}' +
+          imgs.map((b) => ',{"inline_data":{"mime_type":"image/jpeg","data":"' + b + '"}}').join('') +
+          ']}],"generationConfig":' + JSON.stringify(generationConfig) + '}';
       };
       const model = env.MODEL || 'gemini-3.1-flash-image';
       const call = (withSize) => fetch(`https://generativelanguage.googleapis.com/${env.API_VERSION || 'v1beta'}/models/${model}:generateContent`, {

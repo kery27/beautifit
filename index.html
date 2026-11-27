@@ -48,6 +48,7 @@ input[type=file]{position:absolute;width:1px;height:1px;opacity:0}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:56px;width:min(320px,100%);border-radius:16px;border:0;background:var(--mint);font-size:18px;font-weight:700;position:relative}
 .btn.ghost{background:transparent;border:1.5px solid rgba(255,255,255,.7)}
 .tiny{font-size:13px}
+.hop{color:#fff;opacity:.85;font-size:14px;text-decoration:underline;min-height:44px;display:inline-flex;align-items:center}
 /* 아래 편집판 */
 .sheet{position:absolute;left:0;right:0;bottom:0;z-index:3;background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-radius:22px 22px 0 0;border-top:1px solid var(--line);padding:8px 12px max(10px,env(safe-area-inset-bottom));display:grid;gap:8px;
@@ -162,6 +163,7 @@ input[type=range]{width:100%;height:44px;accent-color:var(--mint2);background:tr
     <label class="btn">사진 올리기<input type="file" accept="image/*" class="pick"></label>
     <button class="btn ghost cam" type="button">실시간 카메라</button>
     <p class="tiny">사진은 이 기기 안에서만 처리돼요. ‘변신’을 누를 때만 그 화면 한 장이 AI로 보내져요.</p>
+    <a class="hop" href="nail.html">네일 시안도 해보기</a>
   </div>
 
   <div class="sheet" id="sheet" hidden>
